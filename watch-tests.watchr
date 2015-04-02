@@ -7,19 +7,19 @@ end
 
 def run_all_tests
   system('clear')
-  result = run "env PATH=.:$PATH bundle exec cucumber"
+  result = run "env PATH=.:$PATH go test ./..."
   puts result
 end
 
 def run_test(file)
   system('clear')
-  result = run "env PATH=.:$PATH bundle exec cucumber"
+  result = run "env PATH=.:$PATH go test ./..."
   puts result
 end
 
 run_all_tests
-watch('.*.feature') { |file| run_test file }
-watch('.*.rb') { run_all_tests }
+watch('.*_test.go') { |file| run_test file }
+watch('.*.go') { run_all_tests }
 
 # Ctrl-\
 Signal.trap 'QUIT' do

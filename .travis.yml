@@ -1,8 +1,4 @@
-language: ruby
-cache: bundler
-rvm:
-  - "2.1.5"
-gemfile: Gemfile
+language: go
 notifications:
   email: false
 script: "./run-tests.sh"
