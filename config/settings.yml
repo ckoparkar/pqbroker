@@ -18,6 +18,8 @@ catalog:
         - id: c05855e7-a55d-4ba1-b462-7579df7514f4
           name: development
           description: Free trial
+          max_user_connections: 10
+          max_storage_mb: 100
           metadata:
             bullets:
               - Shared PostgreSQL server
