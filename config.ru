@@ -1,2 +1,2 @@
-require './postgres_broker'
-run PostgresBroker.new
+require './lib/postgresql_broker'
+run PostgresqlBroker.new
