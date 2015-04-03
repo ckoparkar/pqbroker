@@ -1,4 +1,5 @@
-# cf-postgresql-broker [![Build Status](https://travis-ci.org/cskksc/pqbroker.svg?branch=master)](https://travis-ci.org/cskksc/pqbroker) [![Code Climate](https://codeclimate.com/github/cskksc/cf-postgresql-broker/badges/gpa.svg)](https://codeclimate.com/github/cskksc/cf-postgresql-broker) [![Test Coverage](https://codeclimate.com/github/cskksc/cf-postgresql-broker/badges/coverage.svg)](https://codeclimate.com/github/cskksc/cf-postgresql-broker)
+# cf-postgresql-broker [![Build Status](https://travis-ci.org/cskksc/pqbroker.svg?branch=golang-migration)](https://travis-ci.org/cskksc/pqbroker) [![Code Climate](https://codeclimate.com/github/cskksc/cf-postgresql-broker/badges/gpa.svg)](https://codeclimate.com/github/cskksc/cf-postgresql-broker) [![Test Coverage](https://codeclimate.com/github/cskksc/cf-postgresql-broker/badges/coverage.svg)](https://codeclimate.com/github/cskksc/cf-postgresql-broker)
+
 CF PostgreSQL broker provides PostgreSQL databases as a Cloud Foundry service. This uses Service Broker API v2.4.
 
 ## Usage
