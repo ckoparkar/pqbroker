@@ -1,15 +1,13 @@
-package api_test
+package main
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/cskksc/postgresqlbroker/api"
 )
 
 func TestHelloWorld(t *testing.T) {
-	server := httptest.NewServer(api.Handlers())
+	server := httptest.NewServer(Routes())
 	defer server.Close()
 
 	res, err := http.Get(server.URL)
