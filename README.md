@@ -21,11 +21,7 @@ DELETE /v2/service_instances/:instance_id/service_bindings/:binding_id | Deletes
 DELETE /v2/service_instances/:instance_id | Deletes the database `d-instance_id`.
 
 ## Configuration
-The file `config/settings.yml` configures:
-
-* Catalog of services and plans available to users.
-* Basic auth credentials to be used by CF to authenticate with the broker.
-* PostgreSQL credentials and connection details.
+The file `config/settings.json` configures the catalog of services and plans available to users.
 
 ## Development
 The broker is tested using cucumber features.
