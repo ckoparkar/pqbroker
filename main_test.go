@@ -8,14 +8,18 @@ import (
 	"testing"
 )
 
+func panicIf(t *testing.T, err error) {
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestHelloWorld(t *testing.T) {
 	server := httptest.NewServer(Routes())
 	defer server.Close()
 
 	res, err := http.Get(server.URL)
-	if err != nil {
-		t.Error(err)
-	}
+	panicIf(t, err)
 
 	if res.StatusCode != http.StatusOK {
 		t.Error(res.StatusCode)
@@ -26,10 +30,14 @@ func TestCatalog(t *testing.T) {
 	server := httptest.NewServer(Routes())
 	defer server.Close()
 
-	res, err := http.Get(server.URL + "/v2/catalog")
-	if err != nil {
-		t.Error(err)
-	}
+	url := server.URL + "/v2/catalog"
+	req, err := http.NewRequest("GET", url, nil)
+	panicIf(t, err)
+
+	req.SetBasicAuth("admin", "admin")
+	cli := &http.Client{}
+	res, err := cli.Do(req)
+	panicIf(t, err)
 
 	if res.StatusCode != http.StatusOK {
 		t.Error(res.StatusCode)
@@ -37,9 +45,7 @@ func TestCatalog(t *testing.T) {
 
 	body, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
-	if err != nil {
-		t.Error(err)
-	}
+	panicIf(t, err)
 
 	content := string(body)
 	if !strings.Contains(content, "postgresql-db") {

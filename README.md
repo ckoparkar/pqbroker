@@ -23,6 +23,8 @@ DELETE /v2/service_instances/:instance_id | Deletes the database `d-instance_id`
 ## Configuration
 The file `config/settings.json` configures the catalog of services and plans available to users.
 
+The file `config/auth.json` configures the basic auth credentials used to authenticate inbound CC (Cloud-Controller) requests. If the credentials are ever changed in the `auth.json` file, run `go-bindata config/` to update the configuration in `bindata.go` (which is a static file generated for runtime use. For more information: [go-bindata](https://github.com/jteeuwen/go-bindata.git)).
+
 ## Development
 The broker is tested using cucumber features.
 To test continuously:

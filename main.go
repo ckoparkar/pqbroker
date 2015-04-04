@@ -13,17 +13,17 @@ func helloWorld(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func catalog(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	data, err := Asset("config/settings.json")
+	catalog, err := Asset("config/settings.json")
 	if err != nil {
 		return
 	}
-	fmt.Fprintf(w, string(data))
+	fmt.Fprintf(w, string(catalog))
 }
 
 func Routes() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/", helloWorld)
-	router.GET("/v2/catalog", catalog)
+	router.GET("/v2/catalog", basicAuth(catalog))
 	return router
 }
 
