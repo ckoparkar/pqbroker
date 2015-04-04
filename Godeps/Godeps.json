@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/cskksc/postgresqlbroker",
+	"ImportPath": "github.com/cskksc/pqbroker",
 	"GoVersion": "go1.4.2",
 	"Deps": [
 		{
