@@ -28,11 +28,19 @@ func TestCatalog(t *testing.T) {
 	req, err := http.NewRequest("GET", url, nil)
 	failIf(t, err)
 
-	req.SetBasicAuth("admin", "admin")
 	cli := &http.Client{}
 	res, err := cli.Do(req)
+
+	// should get an 401
+	if res.StatusCode != http.StatusUnauthorized {
+		t.Error(res.StatusCode)
+	}
+
+	req.SetBasicAuth("admin", "admin")
+	res, err = cli.Do(req)
 	failIf(t, err)
 
+	// should return 200
 	if res.StatusCode != http.StatusOK {
 		t.Error(res.StatusCode)
 	}
