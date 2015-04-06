@@ -33,7 +33,7 @@ func createInstance(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 }
 
-func Routes() *httprouter.Router {
+func Router() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/", helloWorld)
 	router.GET("/v2/catalog", basicAuth(catalog))
@@ -42,6 +42,6 @@ func Routes() *httprouter.Router {
 }
 
 func main() {
-	router := Routes()
+	router := Router()
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -1,15 +1,18 @@
 package main
 
 import (
-	"io/ioutil"
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
+func setCorrectBasicAuth(r *http.Request) {
+	r.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("admin:admin")))
+}
+
 func TestHelloWorld(t *testing.T) {
-	server := httptest.NewServer(Routes())
+	server := httptest.NewServer(Router())
 	defer server.Close()
 
 	res, err := http.Get(server.URL)
@@ -21,36 +24,22 @@ func TestHelloWorld(t *testing.T) {
 }
 
 func TestCatalog(t *testing.T) {
-	server := httptest.NewServer(Routes())
-	defer server.Close()
+	ts := Router()
 
-	url := server.URL + "/v2/catalog"
-	req, err := http.NewRequest("GET", url, nil)
-	failIf(t, err)
+	r, _ := http.NewRequest("GET", "/v2/catalog", nil)
 
-	cli := &http.Client{}
-	res, err := cli.Do(req)
-
-	// should get an 401
-	if res.StatusCode != http.StatusUnauthorized {
-		t.Error(res.StatusCode)
+	w := httptest.NewRecorder()
+	ts.ServeHTTP(w, r)
+	// should return 401
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Got %d, wanted 401.", w.Code)
 	}
-
-	req.SetBasicAuth("admin", "admin")
-	res, err = cli.Do(req)
-	failIf(t, err)
 
 	// should return 200
-	if res.StatusCode != http.StatusOK {
-		t.Error(res.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	failIf(t, err)
-
-	content := string(body)
-	if !strings.Contains(content, "postgresql-db") {
-		t.Error(err)
+	w = httptest.NewRecorder()
+	setCorrectBasicAuth(r)
+	ts.ServeHTTP(w, r)
+	if w.Code != http.StatusOK {
+		t.Errorf("Got %d, wanted 200.", w.Code)
 	}
 }
