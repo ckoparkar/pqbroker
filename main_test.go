@@ -15,8 +15,7 @@ func TestHelloWorld(t *testing.T) {
 	server := httptest.NewServer(Router())
 	defer server.Close()
 
-	res, err := http.Get(server.URL)
-	failIf(t, err)
+	res, _ := http.Get(server.URL)
 
 	if res.StatusCode != http.StatusOK {
 		t.Error(res.StatusCode)

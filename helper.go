@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
-	"testing"
 )
 
 type ErrorWithCode struct {
@@ -20,12 +19,6 @@ var (
 	// status 500
 	ErrServerNotReachable = ErrorWithCode{Err: errors.New("server not reachable"), Code: http.StatusInternalServerError}
 )
-
-func failIf(t *testing.T, err error) {
-	if err != nil {
-		t.Error(err)
-	}
-}
 
 func panicIf(err error) {
 	if err != nil {
