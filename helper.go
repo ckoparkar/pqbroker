@@ -20,12 +20,6 @@ var (
 	ErrServerNotReachable = ErrorWithCode{Err: errors.New("server not reachable"), Code: http.StatusInternalServerError}
 )
 
-func panicIf(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func pqError(err error) *ErrorWithCode {
 	e := err.Error()
 	switch {

@@ -20,7 +20,9 @@ func initDB() *sql.DB {
 		user, mainDB, host, port)
 
 	db, err := sql.Open("postgres", connString)
-	panicIf(err)
+	if err != nil {
+		return nil
+	}
 	return db
 }
 
