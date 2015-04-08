@@ -53,6 +53,32 @@ func deleteInstance(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	w.Write(j)
 }
 
+func createBinding(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	dbname := fmt.Sprintf("d%s", ps.ByName("instance_id"))
+	username := fmt.Sprintf("u%s", ps.ByName("binding_id"))
+
+	userDetails, err := createUser(strings.Replace(username, "-", "_", -1),
+		strings.Replace(dbname, "-", "_", -1))
+	// response is map whose key is a string and
+	// value is map of string -> string
+	normalResponse := make(map[string]map[string]string)
+
+	errResponse := make(map[string]string)
+
+	w.Header().Set("Content-Type", "application/json")
+	var j []byte
+	if err == nil {
+		normalResponse["credentials"] = userDetails
+		j, _ = json.Marshal(normalResponse)
+	} else {
+		w.WriteHeader(err.Code)
+		errResponse["description"] = err.Err.Error()
+		j, _ = json.Marshal(errResponse)
+	}
+	w.Write(j)
+}
+
 func Router() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/", helloWorld)
