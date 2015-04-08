@@ -79,6 +79,21 @@ func createBinding(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	w.Write(j)
 }
 
+func deleteBinding(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	username := fmt.Sprintf("u%s", ps.ByName("binding_id"))
+
+	response := make(map[string]string)
+	err := deleteUser(strings.Replace(username, "-", "_", -1))
+
+	if err != nil {
+		w.WriteHeader(err.Code)
+		response["description"] = err.Err.Error()
+	}
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := json.Marshal(response)
+	w.Write(j)
+}
+
 func Router() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/", helloWorld)
@@ -87,6 +102,8 @@ func Router() *httprouter.Router {
 	router.DELETE("/v2/service_instances/:instance_id", basicAuth(deleteInstance))
 	router.PUT("/v2/service_instances/:instance_id/service_bindings/:binding_id",
 		basicAuth(createBinding))
+	router.DELETE("/v2/service_instances/:instance_id/service_bindings/:binding_id",
+		basicAuth(deleteBinding))
 	return router
 }
 
