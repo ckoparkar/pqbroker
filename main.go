@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,24 +26,31 @@ func createInstance(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	dbname := fmt.Sprintf("d%s", ps.ByName("instance_id"))
 	dashboard_url, err := createDatabase(strings.Replace(dbname, "-", "_", -1))
 
+	response := make(map[string]string)
+
 	if err == nil {
-		fmt.Fprintf(w, dashboard_url)
+		response["dashboard_url"] = dashboard_url
 	} else {
 		w.WriteHeader(err.Code)
-		fmt.Fprintf(w, err.Err.Error())
+		response["description"] = err.Err.Error()
 	}
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := json.Marshal(response)
+	w.Write(j)
 }
 
 func deleteInstance(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	dbname := fmt.Sprintf("d%s", ps.ByName("instance_id"))
 
+	response := make(map[string]string)
 	err := deleteDatabase(strings.Replace(dbname, "-", "_", -1))
-	if err == nil {
-		fmt.Fprintf(w, " ")
-	} else {
+	if err != nil {
 		w.WriteHeader(err.Code)
-		fmt.Fprintf(w, err.Err.Error())
+		response["description"] = err.Err.Error()
 	}
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := json.Marshal(response)
+	w.Write(j)
 }
 
 func Router() *httprouter.Router {
@@ -51,6 +59,8 @@ func Router() *httprouter.Router {
 	router.GET("/v2/catalog", basicAuth(catalog))
 	router.PUT("/v2/service_instances/:instance_id", basicAuth(createInstance))
 	router.DELETE("/v2/service_instances/:instance_id", basicAuth(deleteInstance))
+	router.PUT("/v2/service_instances/:instance_id/service_bindings/:binding_id",
+		basicAuth(createBinding))
 	return router
 }
 
