@@ -2,8 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
+	"regexp"
 
 	_ "github.com/lib/pq"
 )
@@ -14,6 +17,31 @@ var (
 	user   = os.Getenv("POSTGRESQL_USER")
 	mainDB = "postgres"
 )
+
+type ErrorWithCode struct {
+	Err  error
+	Code int
+}
+
+var (
+	// status 409
+	ErrInstanceAlreadyExists  = ErrorWithCode{Err: errors.New("instance already exists"), Code: http.StatusConflict}
+	RInstanceAlreadyExists, _ = regexp.Compile(".*database \".*\" already exists")
+
+	// status 500
+	ErrServerNotReachable = ErrorWithCode{Err: errors.New("server not reachable"), Code: http.StatusInternalServerError}
+)
+
+func pqError(err error) *ErrorWithCode {
+	e := err.Error()
+	switch {
+	case RInstanceAlreadyExists.MatchString(e):
+		return &ErrInstanceAlreadyExists
+	case RInstanceDoesNotExist.MatchString(e):
+		return &ErrInstanceDoesNotExist
+	}
+	return &ErrorWithCode{err, 0}
+}
 
 func initDB() (*sql.DB, error) {
 	connString := fmt.Sprintf("user=%s dbname=%s host=%s port=%s sslmode=disable",
