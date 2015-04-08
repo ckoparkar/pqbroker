@@ -24,16 +24,20 @@ type ErrorWithCode struct {
 }
 
 var (
-	// status 409
+	// instance status 409
 	ErrInstanceAlreadyExists  = ErrorWithCode{Err: errors.New("instance already exists"), Code: http.StatusConflict}
 	RInstanceAlreadyExists, _ = regexp.Compile(".*database \".*\" already exists")
 
 	// status 500
 	ErrServerNotReachable = ErrorWithCode{Err: errors.New("server not reachable"), Code: http.StatusInternalServerError}
 
-	// status 410
+	// instance status 410
 	ErrInstanceDoesNotExist  = ErrorWithCode{Err: errors.New("instance does not exists"), Code: http.StatusGone}
 	RInstanceDoesNotExist, _ = regexp.Compile(".*database \".*\" does not exist")
+
+	// binding status 409
+	ErrBindingAlreadyExists  = ErrorWithCode{Err: errors.New("binding already exists"), Code: http.StatusConflict}
+	RBindingAlreadyExists, _ = regexp.Compile(".*role \".*\" already exists")
 )
 
 func pqError(err error) *ErrorWithCode {
@@ -43,6 +47,8 @@ func pqError(err error) *ErrorWithCode {
 		return &ErrInstanceAlreadyExists
 	case RInstanceDoesNotExist.MatchString(e):
 		return &ErrInstanceDoesNotExist
+	case RBindingAlreadyExists.MatchString(e):
+		return &ErrBindingAlreadyExists
 	}
 	return &ErrorWithCode{err, 0}
 }
@@ -91,4 +97,34 @@ func deleteDatabase(dbname string) *ErrorWithCode {
 		return pqError(err)
 	}
 	return nil
+}
+
+func createUser(username, dbname string) (map[string]string, *ErrorWithCode) {
+	db, err := initDB()
+	if err != nil {
+		return nil, pqError(err)
+	}
+	defer db.Close()
+
+	q := fmt.Sprintf("CREATE USER %s WITH PASSWORD '%s'", username, username)
+	_, err = db.Exec(q)
+	if err != nil {
+		return nil, pqError(err)
+	}
+
+	q = fmt.Sprintf("GRANT ALL PRIVILEGES ON DATABASE %s TO %s", dbname, username)
+	_, err = db.Exec(q)
+	if err != nil {
+		return nil, pqError(err)
+	}
+
+	userDetails := make(map[string]string)
+	userDetails["hostname"] = host
+	userDetails["port"] = port
+	userDetails["dbname"] = dbname
+	userDetails["uri"] = fmt.Sprintf("posgtresql://%s:%s@%s:%s/%s",
+		username, username, host, port, dbname)
+	userDetails["jdbcUrl"] = fmt.Sprintf("jdbc:%s", userDetails["uri"])
+
+	return userDetails, nil
 }
