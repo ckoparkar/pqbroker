@@ -38,6 +38,10 @@ var (
 	// binding status 409
 	ErrBindingAlreadyExists  = ErrorWithCode{Err: errors.New("binding already exists"), Code: http.StatusConflict}
 	RBindingAlreadyExists, _ = regexp.Compile(".*role \".*\" already exists")
+
+	// binding status 410
+	ErrBindingDoesNotExist  = ErrorWithCode{Err: errors.New("binding does not exist"), Code: http.StatusGone}
+	RBindingDoesNotExist, _ = regexp.Compile(".*role \".*\" does not exist")
 )
 
 func pqError(err error) *ErrorWithCode {
@@ -49,6 +53,8 @@ func pqError(err error) *ErrorWithCode {
 		return &ErrInstanceDoesNotExist
 	case RBindingAlreadyExists.MatchString(e):
 		return &ErrBindingAlreadyExists
+	case RBindingDoesNotExist.MatchString(e):
+		return &ErrBindingDoesNotExist
 	}
 	return &ErrorWithCode{err, 0}
 }
@@ -127,4 +133,25 @@ func createUser(username, dbname string) (map[string]string, *ErrorWithCode) {
 	userDetails["jdbcUrl"] = fmt.Sprintf("jdbc:%s", userDetails["uri"])
 
 	return userDetails, nil
+}
+
+func deleteUser(username string) *ErrorWithCode {
+	db, err := initDB()
+	if err != nil {
+		return pqError(err)
+	}
+	defer db.Close()
+
+	q := fmt.Sprintf("DROP OWNED BY %s CASCADE", username)
+	_, err = db.Exec(q)
+	if err != nil {
+		return pqError(err)
+	}
+
+	q = fmt.Sprintf("DROP ROLE %s", username)
+	_, err = db.Exec(q)
+	if err != nil {
+		return pqError(err)
+	}
+	return nil
 }
