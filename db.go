@@ -30,6 +30,10 @@ var (
 
 	// status 500
 	ErrServerNotReachable = ErrorWithCode{Err: errors.New("server not reachable"), Code: http.StatusInternalServerError}
+
+	// status 410
+	ErrInstanceDoesNotExist  = ErrorWithCode{Err: errors.New("instance does not exists"), Code: http.StatusGone}
+	RInstanceDoesNotExist, _ = regexp.Compile(".*database \".*\" does not exist")
 )
 
 func pqError(err error) *ErrorWithCode {
@@ -73,4 +77,18 @@ func createDatabase(dbname string) (string, *ErrorWithCode) {
 
 	dbString := fmt.Sprintf("http://%s:%s/databases/%s", host, port, dbname)
 	return dbString, nil
+}
+
+func deleteDatabase(dbname string) *ErrorWithCode {
+	db, err := initDB()
+	if err != nil {
+		return pqError(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(fmt.Sprintf("DROP DATABASE %s", dbname))
+	if err != nil {
+		return pqError(err)
+	}
+	return nil
 }
