@@ -15,22 +15,25 @@ var (
 	mainDB = "postgres"
 )
 
-func initDB() *sql.DB {
+func initDB() (*sql.DB, error) {
 	connString := fmt.Sprintf("user=%s dbname=%s host=%s port=%s sslmode=disable",
 		user, mainDB, host, port)
 
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return db
+	return db, nil
 }
 
 func createDatabase(dbname string) (string, *ErrorWithCode) {
-	db := initDB()
+	db, err := initDB()
+	if err != nil {
+		return "", pqError(err)
+	}
 	defer db.Close()
 
-	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE %s", dbname))
+	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", dbname))
 	if err != nil {
 		return "", pqError(err)
 	}
