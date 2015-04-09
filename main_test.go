@@ -60,4 +60,9 @@ func TestCatalog(t *testing.T) {
 	if !strings.Contains(body, "postgresql-db") {
 		t.Errorf("Expected body to contain postgresql-db. Got %s", body)
 	}
+
+	if w.HeaderMap["Content-Type"][0] != "application/json" {
+		t.Errorf("Expected JSON response. Got %s", w.HeaderMap)
+	}
+
 }

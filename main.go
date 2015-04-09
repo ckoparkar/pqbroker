@@ -16,11 +16,17 @@ func helloWorld(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func catalog(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	catalog, err := Asset("config/settings.json")
+	c, err := Asset("config/settings.json")
 	if err != nil {
 		return
 	}
-	fmt.Fprintf(w, string(catalog))
+
+	var catalog Catalog
+	json.Unmarshal(c, &catalog)
+
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := json.Marshal(catalog)
+	w.Write(j)
 }
 
 func createInstance(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
