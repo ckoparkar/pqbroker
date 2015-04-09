@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
@@ -109,5 +110,5 @@ func Router() *httprouter.Router {
 
 func main() {
 	router := Router()
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
 }
